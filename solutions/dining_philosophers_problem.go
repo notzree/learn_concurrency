@@ -28,6 +28,8 @@ func (s *Solver) DiningPhilosophers(params DiningProblemParams) {
 		rg := rand.New(rand.NewSource(uint64(h.Sum64())))
 		actualTimeToEat := params.MedianTimeToEat/2 + time.Duration(rg.Int63n(int64(params.MedianTimeToEat)))
 		actualTimeToThink := params.MedianTimeToThink/2 + time.Duration(rg.Int63n(int64(params.MedianTimeToThink)))
+		fmt.Printf("%s takes %v ms to eat and %v ms to think", philosopher, actualTimeToEat.Milliseconds(), actualTimeToThink.Milliseconds())
+		fmt.Println("")
 		go eat(philosopher, actualTimeToEat, actualTimeToThink, params.Hunger, &dining, &forks[i], &forks[(i+1)%len(params.Philosophers)]) // plus 1 to convert to 1-based index
 	}
 	dining.Wait()
@@ -41,12 +43,13 @@ func eat(philosopher string, timeToEat, timeToThink time.Duration, hunger int, d
 	defer dining.Done()
 	// while still hungry, perform these operations
 	for h := hunger; h > 0; h-- {
-		//try to acquire left fork
+		//try to acquire left and right forks
 		fmt.Println(philosopher, "hungry")
 		leftHand.Lock()
 		rightHand.Lock()
 		fmt.Println(philosopher, "eating")
 		time.Sleep(timeToEat)
+		// release left and right forks
 		leftHand.Unlock()
 		rightHand.Unlock()
 		fmt.Println(philosopher, "thinking")
